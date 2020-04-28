@@ -1,20 +1,34 @@
 package com.example.film_amir;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Button;
+import android.widget.Toast;
 
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,6 +48,13 @@ public class MainActivity extends AppCompatActivity {
             new Movie("Film4", "2013", "Director4", "Producer4", "999", null)
     };
 
+    private static final int READ_PERMISSION_CODE = 100;
+    private static final int WRITE_PERMISSION_CODE = 101;
+
+    public String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Storage";
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,11 +70,19 @@ public class MainActivity extends AppCompatActivity {
         Button buttonVide = (Button) findViewById(R.id.button_vide);
         Button buttonAjout = (Button) findViewById(R.id.button_ajout);
         Button buttonATsk = (Button) findViewById(R.id.button_ATsk);
-        Button buttonATskExec = (Button) findViewById(R.id.button_ATskExec);
-        Button buttonThreads = (Button) findViewById(R.id.button_Threads);
-        Button buttonExecutor = (Button) findViewById(R.id.button_Executor);
-        Button buttonExecWR = (Button) findViewById(R.id.button_ExecWR);
+        Button buttonAutoriser = (Button) findViewById(R.id.button_Autoriser);
+        Button buttonSer = (Button) findViewById(R.id.button_Ser);
+        Button buttonDeSer = (Button) findViewById(R.id.button_DeSer);
 
+
+
+        checkPermission(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                READ_PERMISSION_CODE);
+
+        checkPermission(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                WRITE_PERMISSION_CODE);
 
         buttonDefaut.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -92,71 +121,138 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        buttonATskExec.setOnClickListener(new View.OnClickListener() {
-            @Override
+        buttonAutoriser.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                for (Movie m : listMovie) {
-                    ImageDownloader asyncTask = new ImageDownloader(m, movieAdapter);
-                    asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, URLIMAGE);
+                checkPermission(
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        READ_PERMISSION_CODE);
+
+                checkPermission(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        WRITE_PERMISSION_CODE);
+            }
+        });
+
+        buttonSer.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+
+                //convert list to ser
+                ArrayList<MovieSer> listMovieSer = new ArrayList<>();
+                for(Movie m : listMovie){
+                    listMovieSer.add(Converter.movieToSer(m));
+                }
+
+                File dir = new File(file_path);
+                if(!dir.exists())
+                    dir.mkdirs();
+
+                File file = new File(dir, "MovieObject.ser");
+
+                try {
+                    FileOutputStream fos = new FileOutputStream(file);
+                    ObjectOutputStream oos = new ObjectOutputStream(fos);
+                    // write object to file
+                    oos.writeObject(listMovieSer);
+                    // closing resources
+                    oos.close();
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
 
-        buttonThreads.setOnClickListener(new View.OnClickListener() {
-            @Override
+        buttonDeSer.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                for (Movie m : listMovie) {
-                    Runnable threadDownloader = new ImageDownloaderThread(m, movieAdapter, URLIMAGE);
-                    Thread thread = new Thread(threadDownloader);
-                    thread.start();
-                }
+                listMovie.clear();
 
-                movieAdapter.notifyDataSetChanged();
-            }
-        });
+                File dir = new File(file_path);
+                File file = new File(dir, "MovieObject.ser");
+                try {
+                    FileInputStream is = new FileInputStream(file);
+                    ObjectInputStream ois = new ObjectInputStream(is);
+                    ArrayList<MovieSer> movieSer = (ArrayList<MovieSer>) ois.readObject();
+                    ois.close();
+                    is.close();
 
-        buttonExecutor.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ExecutorService executor = Executors.newFixedThreadPool(5);
-                for (Movie m : listMovie) {
-
-                    Runnable threadDownloader = new ImageDownloaderThread(m, movieAdapter, URLIMAGE);
-                    executor.execute(threadDownloader);
-
-                }
-                executor.shutdown();
-                //wait until thread finished
-                while (!executor.isTerminated()) {
-
+                    //deserialize object bitmap
+                    for(MovieSer m : movieSer){
+                        listMovie.add(Converter.serToMovie(m));
+                    }
+                    
+                    movieAdapter.notifyDataSetChanged();
+                } catch (ClassNotFoundException | IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
 
-        buttonExecWR.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ExecutorService executor = Executors.newFixedThreadPool(5);
-
-                for (Movie m : listMovie) {
-
-                    Runnable threadDownloader = new ImageDownloaderThread(m, movieAdapter, URLIMAGE);
-                    executor.execute(threadDownloader);
-
-                }
-                executor.shutdown();
-                //wait until thread finished
-                while (!executor.isTerminated()) {
-
-                }
-            }
-        });
     }
 
     public static int randInt(int min, int max) {
         Random rand = new Random();
         int randomNum = rand.nextInt((max - min) + 1) + min;
         return randomNum;
+    }
+
+    public void checkPermission(String permission, int requestCode)
+    {
+        if (ContextCompat.checkSelfPermission(MainActivity.this, permission)
+                == PackageManager.PERMISSION_DENIED) {
+
+            // Requesting the permission
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[] { permission },
+                    requestCode);
+        }
+        else {
+            Toast.makeText(MainActivity.this,
+                    "Permission deja accordé",
+                    Toast.LENGTH_SHORT)
+                    .show();
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode,
+                        permissions,
+                        grantResults);
+
+        if (requestCode == READ_PERMISSION_CODE) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(MainActivity.this,
+                        "READ Permission Granted",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+            else {
+                Toast.makeText(MainActivity.this,
+                        "READ Permission Denied",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }
+        else if (requestCode == WRITE_PERMISSION_CODE) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(MainActivity.this,
+                        "WRITING Permission Granted",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+            else {
+                Toast.makeText(MainActivity.this,
+                        "WRITING Permission Denied",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }
     }
 
     public class ImageDownloader extends AsyncTask<String, Void, Bitmap> {

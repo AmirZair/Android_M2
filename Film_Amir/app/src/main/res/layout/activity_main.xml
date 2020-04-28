@@ -38,6 +38,7 @@
 
 
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/top_buttons2"
         android:layout_width="wrap_content"
@@ -45,28 +46,22 @@
         android:orientation="horizontal" >
 
         <Button
-            android:id="@+id/button_ATskExec"
+            android:id="@+id/button_Autoriser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ATskExec" />
+            android:text="Autoriser" />
 
         <Button
-            android:id="@+id/button_Threads"
+            android:id="@+id/button_Ser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Threads" />
+            android:text="Ser" />
 
         <Button
-            android:id="@+id/button_Executor"
+            android:id="@+id/button_DeSer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Executor" />
-
-        <Button
-            android:id="@+id/button_ExecWR"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ExecWR" />
+            android:text="DeSer" />
 
     </LinearLayout>
 
