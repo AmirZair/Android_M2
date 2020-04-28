@@ -30,7 +30,46 @@
             android:layout_height="wrap_content"
             android:text="Ajout" />
 
+        <Button
+            android:id="@+id/button_ATsk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ATsk" />
+
+
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/top_buttons2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/button_ATskExec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ATskExec" />
+
+        <Button
+            android:id="@+id/button_Threads"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Threads" />
+
+        <Button
+            android:id="@+id/button_Executor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Executor" />
+
+        <Button
+            android:id="@+id/button_ExecWR"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ExecWR" />
+
+    </LinearLayout>
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

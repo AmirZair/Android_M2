@@ -36,6 +36,8 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
         TextView director = (TextView) recup.findViewById(R.id.director);
         TextView producer = (TextView) recup.findViewById(R.id.producer);
         TextView cost = (TextView) recup.findViewById(R.id.cost);
+        ImageView imageView = (ImageView) recup.findViewById(R.id.image);
+
 
 
         Movie f = this.movieList.get(position);
@@ -45,7 +47,11 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
         director.setText(f.getDirector());
         producer.setText(f.getProducer());
         cost.setText(f.getCost());
+        if(f.getImage() != null)
+            imageView.setImageBitmap(f.getImage());
 
         return recup;
     }
+
+
 }
