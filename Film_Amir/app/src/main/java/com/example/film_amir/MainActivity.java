@@ -6,7 +6,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +17,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Button;
 import android.widget.Toast;
@@ -51,9 +54,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int READ_PERMISSION_CODE = 100;
     private static final int WRITE_PERMISSION_CODE = 101;
 
-    public String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Storage";
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +63,21 @@ public class MainActivity extends AppCompatActivity {
         final ArrayList<Movie> listMovie = new ArrayList<>();
         final MovieAdapter movieAdapter = new MovieAdapter(listMovie, getBaseContext());
         final ListView lv = findViewById(R.id.listViewMovie);
+        final EditText inputCrypt = new EditText(this);
+        final EditText inputDecrypt = new EditText(this);
         lv.setAdapter(movieAdapter);
+
+        /*Alert Dialog chiffrer*/
+        AlertDialog.Builder builderCrypt = new AlertDialog.Builder(this);
+        builderCrypt.setTitle("Mot de passe pour chiffrer le fichier");
+        builderCrypt.setMessage("Saisissez votre mot de passe");
+        builderCrypt.setView(inputCrypt);
+
+        /*Alert Dialog dechiffrer*/
+        AlertDialog.Builder builderDecrypt = new AlertDialog.Builder(this);
+        builderCrypt.setTitle("Mot de passe pour dechiffrer le fichier");
+        builderCrypt.setMessage("Saisissez votre mot de passe");
+        builderCrypt.setView(inputDecrypt);
 
 
         Button buttonDefaut = (Button) findViewById(R.id.button_defaut);
@@ -73,8 +87,39 @@ public class MainActivity extends AppCompatActivity {
         Button buttonAutoriser = (Button) findViewById(R.id.button_Autoriser);
         Button buttonSer = (Button) findViewById(R.id.button_Ser);
         Button buttonDeSer = (Button) findViewById(R.id.button_DeSer);
+        Button buttonSerCSS = (Button) findViewById(R.id.button_SerCSS);
+        Button buttonDeSerCSS = (Button) findViewById(R.id.button_DeSerCSS);
 
+        /*Click listener dialog*/
+        builderCrypt.setPositiveButton("Valider", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String key = inputCrypt.getText().toString();
 
+            }
+        });
+
+        builderCrypt.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builderDecrypt.setPositiveButton("Valider", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String key = inputDecrypt.getText().toString();
+
+            }
+        });
+
+        builderDecrypt.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
 
         checkPermission(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -135,57 +180,33 @@ public class MainActivity extends AppCompatActivity {
 
         buttonSer.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-
-                //convert list to ser
-                ArrayList<MovieSer> listMovieSer = new ArrayList<>();
-                for(Movie m : listMovie){
-                    listMovieSer.add(Converter.movieToSer(m));
-                }
-
-                File dir = new File(file_path);
-                if(!dir.exists())
-                    dir.mkdirs();
-
-                File file = new File(dir, "MovieObject.ser");
-
-                try {
-                    FileOutputStream fos = new FileOutputStream(file);
-                    ObjectOutputStream oos = new ObjectOutputStream(fos);
-                    // write object to file
-                    oos.writeObject(listMovieSer);
-                    // closing resources
-                    oos.close();
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                OutputSteams.saveMovies(listMovie);
             }
         });
 
         buttonDeSer.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 listMovie.clear();
-
-                File dir = new File(file_path);
-                File file = new File(dir, "MovieObject.ser");
-                try {
-                    FileInputStream is = new FileInputStream(file);
-                    ObjectInputStream ois = new ObjectInputStream(is);
-                    ArrayList<MovieSer> movieSer = (ArrayList<MovieSer>) ois.readObject();
-                    ois.close();
-                    is.close();
-
-                    //deserialize object bitmap
-                    for(MovieSer m : movieSer){
-                        listMovie.add(Converter.serToMovie(m));
-                    }
-                    
-                    movieAdapter.notifyDataSetChanged();
-                } catch (ClassNotFoundException | IOException e) {
-                    e.printStackTrace();
-                }
+                listMovie.addAll(OutputSteams.loadMovie());
+                movieAdapter.notifyDataSetChanged();
             }
         });
+
+        final AlertDialog adCrypte = builderCrypt.create();
+        buttonSerCSS.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                adCrypte.show();
+            }
+        });
+
+        final AlertDialog adDecrypte = builderCrypt.create();
+        buttonDeSerCSS.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                adDecrypte.show();
+            }
+        });
+
+
 
     }
 
@@ -201,7 +222,8 @@ public class MainActivity extends AppCompatActivity {
                 == PackageManager.PERMISSION_DENIED) {
 
             // Requesting the permission
-            ActivityCompat.requestPermissions(MainActivity.this,
+            ActivityCompat.requestPermissions(
+                    MainActivity.this,
                     new String[] { permission },
                     requestCode);
         }

@@ -65,6 +65,26 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/top_buttons3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/button_SerCSS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ser-CSS" />
+
+        <Button
+            android:id="@+id/button_DeSerCSS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DeSer-CSS" />
+    </LinearLayout>
+
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

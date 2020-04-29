@@ -3,20 +3,17 @@ package com.example.film_amir;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
 public class Converter {
 
     public static byte[] bitmapToByte(Bitmap bitmap){
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
 
-        int size = bitmap.getRowBytes() * bitmap.getHeight();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(size);
-        bitmap.copyPixelsToBuffer(byteBuffer);
-        byte[] byteArray = byteBuffer.array();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
 
-        return byteArray;
     }
 
     public static Bitmap byteToBitMap(byte[] array){
@@ -30,7 +27,7 @@ public class Converter {
                 m.getDirector(),
                 m.getProducer(),
                 m.getCost(),
-                bitmapToByte(m.getImage())
+                m.getImage() != null ? bitmapToByte(m.getImage()) : null
         );
     }
 
@@ -41,7 +38,7 @@ public class Converter {
                 m.getDirector(),
                 m.getProducer(),
                 m.getCost(),
-                byteToBitMap(m.getImage())
+                m.getImage() != null ? byteToBitMap(m.getImage()) : null
         );
     }
 }
