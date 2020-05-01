@@ -36,6 +36,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,21 +64,21 @@ public class MainActivity extends AppCompatActivity {
         final ArrayList<Movie> listMovie = new ArrayList<>();
         final MovieAdapter movieAdapter = new MovieAdapter(listMovie, getBaseContext());
         final ListView lv = findViewById(R.id.listViewMovie);
-        final EditText inputCrypt = new EditText(this);
-        final EditText inputDecrypt = new EditText(this);
         lv.setAdapter(movieAdapter);
 
         /*Alert Dialog chiffrer*/
         AlertDialog.Builder builderCrypt = new AlertDialog.Builder(this);
         builderCrypt.setTitle("Mot de passe pour chiffrer le fichier");
         builderCrypt.setMessage("Saisissez votre mot de passe");
+        final EditText inputCrypt = new EditText(this);
         builderCrypt.setView(inputCrypt);
 
         /*Alert Dialog dechiffrer*/
         AlertDialog.Builder builderDecrypt = new AlertDialog.Builder(this);
-        builderCrypt.setTitle("Mot de passe pour dechiffrer le fichier");
-        builderCrypt.setMessage("Saisissez votre mot de passe");
-        builderCrypt.setView(inputDecrypt);
+        builderDecrypt.setTitle("Mot de passe pour dechiffrer le fichier");
+        builderDecrypt.setMessage("Saisissez votre mot de passe");
+        final EditText inputDecrypt = new EditText(this);
+        builderDecrypt.setView(inputDecrypt);
 
 
         Button buttonDefaut = (Button) findViewById(R.id.button_defaut);
@@ -95,33 +96,51 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String pass = inputCrypt.getText().toString();
-                CipherStreams.saveMovie("pass", listMovie);
-
+                CipherStreams.saveMovie(pass, listMovie);
             }
         });
 
         builderCrypt.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
             }
         });
 
         builderDecrypt.setPositiveButton("Valider", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String pass = inputDecrypt.getText().toString();
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            String pass = inputDecrypt.getText().toString();
+            List<Movie> m = CipherStreams.loadMovie(pass);
+            if(m != null){
                 listMovie.clear();
-                listMovie.addAll(CipherStreams.loadMovie("pass"));
+                listMovie.addAll(m);
                 movieAdapter.notifyDataSetChanged();
-
+            }else{
+                Toast.makeText(MainActivity.this,
+                        "Mot de pass incorrect ou fichier introuvable",
+                        Toast.LENGTH_SHORT)
+                        .show();
             }
+        }
         });
 
         builderDecrypt.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+            }
+        });
+
+        final AlertDialog adCrypte = builderCrypt.create();
+        buttonSerCSS.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                adCrypte.show();
+            }
+        });
+
+        final AlertDialog adDecrypte = builderDecrypt.create();
+        buttonDeSerCSS.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                adDecrypte.show();
             }
         });
 
@@ -197,23 +216,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        final AlertDialog adCrypte = builderCrypt.create();
-        buttonSerCSS.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                adCrypte.show();
-            }
-        });
-
-        final AlertDialog adDecrypte = builderDecrypt.create();
-        buttonDeSerCSS.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                adDecrypte.show();
-            }
-        });
-
-
-
     }
 
     public static int randInt(int min, int max) {
