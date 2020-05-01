@@ -13,8 +13,6 @@ import java.util.List;
 
 public class OutputSteams {
 
-    public static String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Storage";
-
     public static void saveMovies(List<Movie> listMovie){
         //convert list to ser
         ArrayList<MovieSer> listMovieSer = new ArrayList<>();
@@ -22,7 +20,7 @@ public class OutputSteams {
             listMovieSer.add(Converter.movieToSer(m));
         }
 
-        File dir = new File(file_path);
+        File dir = new File(utils.file_path);
         if(!dir.exists())
             dir.mkdirs();
 
@@ -43,7 +41,7 @@ public class OutputSteams {
 
     public static List<Movie> loadMovie(){
 
-        File dir = new File(file_path);
+        File dir = new File(utils.file_path);
         File file = new File(dir, "MovieObject.ser");
         ArrayList<Movie> listMovie = new ArrayList<>();
         try {

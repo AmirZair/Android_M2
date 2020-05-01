@@ -94,7 +94,8 @@ public class MainActivity extends AppCompatActivity {
         builderCrypt.setPositiveButton("Valider", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String key = inputCrypt.getText().toString();
+                String pass = inputCrypt.getText().toString();
+                CipherStreams.saveMovie("pass", listMovie);
 
             }
         });
@@ -109,7 +110,10 @@ public class MainActivity extends AppCompatActivity {
         builderDecrypt.setPositiveButton("Valider", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String key = inputDecrypt.getText().toString();
+                String pass = inputDecrypt.getText().toString();
+                listMovie.clear();
+                listMovie.addAll(CipherStreams.loadMovie("pass"));
+                movieAdapter.notifyDataSetChanged();
 
             }
         });
@@ -186,9 +190,11 @@ public class MainActivity extends AppCompatActivity {
 
         buttonDeSer.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                listMovie.clear();
-                listMovie.addAll(OutputSteams.loadMovie());
-                movieAdapter.notifyDataSetChanged();
+                if(utils.fileExist()){
+                    listMovie.clear();
+                    listMovie.addAll(OutputSteams.loadMovie());
+                    movieAdapter.notifyDataSetChanged();
+                }
             }
         });
 
@@ -199,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final AlertDialog adDecrypte = builderCrypt.create();
+        final AlertDialog adDecrypte = builderDecrypt.create();
         buttonDeSerCSS.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 adDecrypte.show();

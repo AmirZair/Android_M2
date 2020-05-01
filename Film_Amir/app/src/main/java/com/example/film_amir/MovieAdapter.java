@@ -38,8 +38,6 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
         TextView cost = (TextView) recup.findViewById(R.id.cost);
         ImageView imageView = (ImageView) recup.findViewById(R.id.image);
 
-
-
         Movie f = this.movieList.get(position);
 
         title.setText(f.getTitle());
