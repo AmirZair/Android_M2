@@ -43,6 +43,8 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.example.film_amir.utils.randInt;
+
 public class MainActivity extends AppCompatActivity {
     public String URLIMAGE = "https://picsum.photos/75/75";
     public Movie[] initdata = new Movie[]{
@@ -216,12 +218,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    public static int randInt(int min, int max) {
-        Random rand = new Random();
-        int randomNum = rand.nextInt((max - min) + 1) + min;
-        return randomNum;
     }
 
     public void checkPermission(String permission, int requestCode)

@@ -13,6 +13,8 @@ import java.util.List;
 
 public class OutputSteams {
 
+    final static String fileName = "MovieObject.ser";
+
     public static void saveMovies(List<Movie> listMovie){
         //convert list to ser
         ArrayList<MovieSer> listMovieSer = new ArrayList<>();
@@ -24,7 +26,7 @@ public class OutputSteams {
         if(!dir.exists())
             dir.mkdirs();
 
-        File file = new File(dir, "MovieObject.ser");
+        File file = new File(dir, fileName);
 
         try {
             FileOutputStream fos = new FileOutputStream(file);
@@ -42,7 +44,7 @@ public class OutputSteams {
     public static List<Movie> loadMovie(){
 
         File dir = new File(utils.file_path);
-        File file = new File(dir, "MovieObject.ser");
+        File file = new File(dir, fileName);
         ArrayList<Movie> listMovie = new ArrayList<>();
         try {
             FileInputStream is = new FileInputStream(file);

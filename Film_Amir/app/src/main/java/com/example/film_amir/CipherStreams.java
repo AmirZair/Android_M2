@@ -23,6 +23,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class CipherStreams {
 
+    final static String fileName = "MovieObjectCrypte.ser";
+
     public static void saveMovie(String pass, List<Movie> listMovie){
 
         byte[] keyByte = Arrays.copyOfRange(getHash(pass).getBytes(), 0, 16);
@@ -36,7 +38,7 @@ public class CipherStreams {
         if(!dir.exists())
             dir.mkdirs();
 
-        File file = new File(dir, "MovieObjectCrypte.ser");
+        File file = new File(dir, fileName);
 
         try {
             SecretKeySpec key = new SecretKeySpec(keyByte, "AES");
@@ -71,7 +73,7 @@ public class CipherStreams {
 
 
         File dir = new File(utils.file_path);
-        File file = new File(dir, "MovieObjectCrypte.ser");
+        File file = new File(dir, fileName);
         ArrayList<Movie> listMovie = new ArrayList<>();
 
         try {
